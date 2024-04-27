@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "521427089788",
+    "project_id": "freizeitnotes-flutter-project",
+    "storage_bucket": "freizeitnotes-flutter-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521427089788:android:c63a5f1e80e52698d08cf9",
+        "android_client_info": {
+          "package_name": "com.example.tutorial_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfFf3DGNW7mvOl3vu27r8119NtuHUmMc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
