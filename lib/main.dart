@@ -20,6 +20,7 @@ void main() {
         loginRoute: (context) => const LoginView(),
         registerRoute: (context) => const RegisterView(),
         notesRoute: (context) => const NotesView(),
+        verifyEmailRoute: (context) => const VerifyEmailView(),
       },
     ),
   );
@@ -122,5 +123,5 @@ Future<bool> showLogOutDialog(BuildContext context){
           ],
         );
       },
-  ).then((value) => value ?? false); //WHY???
+  ).then((value) => value ?? false); //To close the Pup-Up by clicking outside of it = cancel
 }
