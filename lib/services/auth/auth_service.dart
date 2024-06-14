@@ -1,12 +1,17 @@
-import 'auth_provider.dart';
-import 'auth_user.dart';
+import 'package:tutorial_flutter/services/auth/auth_provider.dart';
+import 'package:tutorial_flutter/services/auth/auth_user.dart';
+import 'package:tutorial_flutter/services/auth/firebase_auth_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import '../../firebase_options.dart';
 
-class AuthService implements AuthProvider{
+class AuthService implements AuthProvider {
   final AuthProvider provider;
   const AuthService(this.provider);
 
+  factory AuthService.firebase() => AuthService(FirebaseAuthProvider());
+
   @override
-  Future<dynamic> createUser({
+  Future<AuthUser> createUser({
     required String email,
     required String password,
   }) =>
@@ -19,7 +24,7 @@ class AuthService implements AuthProvider{
   AuthUser? get currentUser => provider.currentUser;
 
   @override
-  Future<dynamic> logIn({
+  Future<AuthUser> logIn({
     required String email,
     required String password,
   }) =>
@@ -33,4 +38,11 @@ class AuthService implements AuthProvider{
 
   @override
   Future<void> sendEmailVerification() => provider.sendEmailVerification();
+
+  @override
+  Future<void> initialize() async{
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 }
