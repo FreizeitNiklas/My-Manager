@@ -9,6 +9,10 @@ class AuthService implements AuthProvider {
   const AuthService(this.provider);
 
   factory AuthService.firebase() => AuthService(FirebaseAuthProvider());
+  //It returns an instance of AuthService witch is already configured with FirebaseAuthProvider
+  //"factory": Its creates an instance of an class and can also return it
+  //".firebase": Is the name of the constructor
+  //It's initialized AuthService with FirebaseAuthProvider
 
   @override
   Future<AuthUser> createUser({

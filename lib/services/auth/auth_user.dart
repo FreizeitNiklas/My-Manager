@@ -10,7 +10,7 @@ class AuthUser {
         required this.isEmailVerified,
     });
 
-    factory AuthUser.fromFirebase(User user) => AuthUser(
+    factory AuthUser.fromFirebase(User user) => AuthUser( //Der Kosntruktor akzeptiert ein Aruguemt vom Typ "User" / Dieser "User" repräsentiert einen authentifizierten Benutzer
             email: user.email,
             isEmailVerified: user.emailVerified,
         );

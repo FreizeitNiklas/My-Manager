@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tutorial_flutter/views/login_view.dart';
-import 'package:tutorial_flutter/views/notes_view.dart';
+import 'package:tutorial_flutter/views/notes/new_note_view.dart';
+import 'package:tutorial_flutter/views/notes/notes_view.dart';
 import 'package:tutorial_flutter/views/register_view.dart';
 import 'package:tutorial_flutter/views/verify_email_view.dart';
 import 'constants/routes.dart';
@@ -20,6 +21,7 @@ void main() {
         registerRoute: (context) => const RegisterView(),
         notesRoute: (context) => const NotesView(),
         verifyEmailRoute: (context) => const VerifyEmailView(),
+        newNoteRoute: (context) => const NewNoteView(),
       },
     ),
   );
@@ -31,7 +33,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: AuthService.firebase().initialize(),
+      future: AuthService.firebase().initialize(), //no direct communication with firebase / AuthService first
       builder: (context, snapshot){
         switch (snapshot.connectionState){
           case ConnectionState.done: //if Connection is done -> Return Text "Done" (Row 44) otherwise return Row 46

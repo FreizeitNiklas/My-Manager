@@ -14,6 +14,10 @@ class FirebaseAuthProvider implements AuthProvider {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
+  //"void" sagt, dass kein Wert zurückgegeben wird, sobald das Future abgeschlossen ist
+  //"Firbase.initializeApp": das ist eine Methode, die die Firebase-Dienste für die Anwendung initialisiert
+  //"options": Gibt zusätzliche Optionen für die Firebase Initialisierung
+  // "DefaultFirebaseOptions.currentPlatform" damit werden Platformspezifische Konfigurationen berücksichtigt (iOS/Android)
 
   @override
   Future<AuthUser> createUser({
