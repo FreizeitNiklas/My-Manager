@@ -75,9 +75,15 @@ class _NotesViewState extends State<NotesView> {
                 builder: (context, snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting: //Wenn auf die Fertigstellung des Future gewartet wird, wird ein Text "Waiting for all notes..." angezeigt.
+                    case ConnectionState.active: //Wenn der Stream aktiv ist und Daten sendet --> Es wird auch der Text returnt
                       return const Text('Waiting for all notes...');
                     default:
                       return const CircularProgressIndicator();
+                      //"ConnectionState.active" wird verwendet, um anzuzeigen, dass der Stream aktiv ist und Daten sendet,
+                      //aber noch nicht abgeschlossen ist. Durch das Kombinieren von "ConnectionState.waiting" und
+                      //"ConnectionState.active" im "switch"-Statement kann die Benutzeroberfläche in beiden Fällen
+                      //denselben Hinweis ("Waiting for all notes...") anzeigen, um den Benutzer darüber zu informieren,
+                      //dass das System auf die Verfügbarkeit der Notizen wartet.
                   }
                 },
               );
