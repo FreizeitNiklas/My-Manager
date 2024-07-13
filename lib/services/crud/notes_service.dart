@@ -15,17 +15,23 @@ class NotesService {
   static final NotesService _shared = NotesService._sharedInstance();
   //Erstellung einer einzelnen statischen Instanz von "NotesService"
   //Die Instanz wird durch Aufruf des privaten Konstruktors NotesService._sharedInstance() erstellt.
-  NotesService._sharedInstance();
-  //Dies ist ein privater benannter Konstruktor. Es stellt sicher, dass die Klasse NotesService nur innerhalb der Klasse selbst instanziiert werden kann und nicht von außen. ?????
+  NotesService._sharedInstance() { //Benannte konstruktoren ("._sharedInstance) werden für initalisierungen verwendet / hier sorgt er dafür, dass es nur eine Instanz der Klasse gibt
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast( //Infos übergeben / ".broadcast" -> mehrere Zuhöherer
+      onListen: () { //"onListen" wird aufgerufen, wenn ein neuer Zuhöhere beitritt
+        _notesStreamController.sink.add(_notes);
+      }, //der neue Zuhöhrer bekommt aktuellen Zustand von "_notes"
+    );   //"sink.add(_notes)" fügt die aktuelle Liste ("_notes") dem Stream hinzu, so bekommt der neue Nutzer die bestehenden Infos
+  }
   factory NotesService() => _shared;
   //Dies ist ein Factory-Konstruktor, der immer die gleiche Instanz von NotesService zurückgibt, nämlich _shared.
   //"factory" wird verwendet um ein bestehendes Objekt zurückzugeben, anstatt ein neues zu erstellen.
   //NotesService ist als Singleton implementiert, was bedeutet, dass es nur eine Instanz dieser Klasse gibt.
   // Das stellt sicher, dass alle Teile der Anwendung dieselbe Datenbankverbindung und denselben Datenstatus teilen.
 
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+   late final StreamController<List<DatabaseNote>> _notesStreamController;
 //"_notesStreamController" ist in StreamController, der Änderungen an den Notizen verwaltet und die Notizen an alle Abonnenten sendet.
+//Die Zeile definiert eine Variable "_notesStreamController" als "StreamController",
+// die eine Liste von DatabaseNote-Objekten verwaltet.
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 //"allNotes" ist ein Stream, den die UI oder andere Teile der Anwendung abonnieren können, um über Änderungen an den Notizen informiert zu werden.
