@@ -23,7 +23,7 @@ class _NewNoteViewState extends State<NewNoteView> {
     super.initState(); //Sicherstellung, dass alles intialisiert wurde (Standard-Code von Flutter)
   }
 
-  void _textControllerlistener() async { //Es soll beim "tippen" die ganze Zeit Updates an die Database geben
+  void _textControllerListener() async { //Es soll beim "tippen" die ganze Zeit Updates an die Database geben
     final note = _note;
     if (note == null) { //wenn es keine Notiz gibt, soll die Methode vorzeitig beendet werden
       return;
@@ -31,17 +31,18 @@ class _NewNoteViewState extends State<NewNoteView> {
     final text = _textController.text;
     await _notesService.updateNote(
         note: note,
-        text: text
+        text: text,
     );
   }
 //Jedes Mal, wenn der Benutzer eine Änderung vornimmt, wird die Methode aufgerufen und aktualisiert die Notiz in der Datenbank
   
   void _setupTextControllerListener() { //sorgt dafür, dass der "_textControllerListener" korrekt an den "_textController" angehängt wird
-    _textController.removeListener(_textControllerlistener); //zuerst den Listener entfernen
-    _textController.addListener(_textControllerlistener); //dann wieder hinzufügen
+    _textController.removeListener(_textControllerListener); //zuerst den Listener entfernen
+    _textController.addListener(_textControllerListener); //dann wieder hinzufügen
   } //so können niemals zwei Listener gleichzeitig laufen
   
-  Future<DatabaseNote> createNewNote() async {
+  Future<DatabaseNote> createNewNote(BuildContext context) async {
+
     final existingNote = _note; //Weist die bestehende Notiz (falls vorhanden) der lokalen Variable "existingNote" zu
     if (existingNote != null) { //und auch nicht "null" ist
       return existingNote; //Dann gib die bestehende Notiz zurück
@@ -65,7 +66,7 @@ class _NewNoteViewState extends State<NewNoteView> {
     if (note != null && text.isNotEmpty) {
       await _notesService.updateNote(
           note: note,
-          text: text
+          text: text,
       );
     }
   }
@@ -85,7 +86,7 @@ class _NewNoteViewState extends State<NewNoteView> {
         title: const Text('New Note'),
       ),
       body: FutureBuilder(
-        future: createNewNote(),
+        future: createNewNote(context),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) { //prüft die aktuelle ("snapchot") Verbindung
             case ConnectionState.done: //Dieser Fall tritt ein, wenn das Future abgeschlossen ist und ein Ergebnis zurückgegeben hat

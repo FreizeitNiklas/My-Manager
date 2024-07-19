@@ -1,9 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tutorial_flutter/services/auth/auth_service.dart';
 import 'package:tutorial_flutter/services/crud/notes_service.dart';
+import 'package:tutorial_flutter/views/notes/notes_list_view.dart';
 import '../../constants/routes.dart';
 import '../../enums/menu_action.dart';
+import '../../utilities/dialogs/logout_dialog.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key}); //Sicherstellung, dass der "key" richtig übergeben wird / aber was ist der "key"?
@@ -72,18 +73,10 @@ class _NotesViewState extends State<NotesView> {
                     case ConnectionState.active: //Wenn der Stream aktiv ist und Daten sendet --> Es wird auch der Text returnt
                         if (snapshot.hasData) {
                           final allNotes = snapshot.data as List<DatabaseNote>;
-                          return ListView.builder(
-                            itemCount: allNotes.length,
-                            itemBuilder: (context, index) {
-                              final note = allNotes[index];
-                              return ListTile(
-                                title: Text(
-                                  note.text,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              );
+                          return NotesListView(
+                            notes: allNotes,
+                            onDeleteNote: (note) async {
+                              await _notesService.deleteNote(id: note.id);
                             },
                           );
                         } else {
@@ -106,34 +99,4 @@ class _NotesViewState extends State<NotesView> {
       ),
     );
   }
-}
-
-Future<bool> showLogOutDialog(BuildContext context){ //Hier wird der nutzer gefragt ob er sich wirklich abmelden will "bool" -> true/fals
-  return showDialog<bool>(
-    context: context, //Das ist der Build-Kontext. Er wird benötigt um auf das übergeordnete Widget und deren Zustand zuzugreifen.
-    //"context: context" übergibt den aktuellen Build-Kontext an die "showDialog"-Methode, damit sie den Dialog in der richtigen Position im Widget-Baum anzeigen kann.
-    builder: (context) {  //Der "builder" ist eine Funktion, die den Dialog erstellt. Sie erhält den Build-Kontext als Parameter.
-    //"builder: (context) { ... }" definiert, wie der Dialog aussehen soll.
-      return AlertDialog( //"AlertDialog" ist vorgwefertigt von Flutter. Wird genutzt um wichtige Entscheidungen zu treffen
-        title: const Text('Sign out'),
-        content: const Text('Are you sure you want to sign out?'),
-        actions: [
-          TextButton(
-              onPressed: (){
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Cancel')),
-          //Wenn der Benutzer auf "Cancel" klickt, wird der Dialog geschlossen und "false" wird als Ergebnis zurückgegeben.
-          TextButton(
-              onPressed: (){
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Log out')),
-          //Wenn der Benutzer auf "Log out" klickt, wird der Dialog geschlossen und true wird als Ergebnis zurückgegeben.
-        ],
-      );
-    },
-  ).then((value) => value ?? false);
-  //"value ?? false" bedeutet: Wenn "value" "null" ist (Klick außerhalb des Fensters), wird false zurückgegeben.
-  // "Dies stellt sicher, dass "showLogOutDialog" immer ein bool zurückgibt.
 }

@@ -88,7 +88,7 @@ class NotesService {
   Future<Iterable<DatabaseNote>> getAllNotes() async { //Die Methode getAllNotes ist eine asynchrone Methode, die ein Future zurückgibt. Das Future enthält eine(n) Iterable (Stream?) von DatabaseNote-Objekten.
     await _ensureDbIsOpen(); //Diese Zeile stellt sicher, dass die Datenbank geöffnet ist, bevor irgendwelche Operationen darauf ausgeführt werden.
     final db = _getDatabaseOrThrow(); //Diese Zeile holt die Datenbankinstanz. Wenn die Datenbank nicht geöffnet ist, wird eine Ausnahme ausgelöst.
-    final notes = await db.query(noteTable);
+    final notes = await db.query(noteTable); //"query" ist eine Warteschalnge -> Brauch ich hier weil mehrere Inhalte
     //Führt eine Abfrage auf der Tabelle noteTable aus und speichert das Ergebnis in der Variable notes.
     // Die Methode "query" gibt eine Liste von Maps zurück, wobei jede Map eine Zeile aus der Tabelle repräsentiert.
 
@@ -97,7 +97,7 @@ class NotesService {
   //Diese Zeile wandelt jede Zeile (jeden Eintrag in der Liste notes) in ein DatabaseNote-Objekt um. Dazu wird die Methode fromRow von DatabaseNote verwendet.
   //"notes.map" erstellt eine neue Iterable von DatabaseNote-Objekten, die aus den Zeilen der Datenbanktabelle erstellt werden.
 
-  //Diese Methode ruft alle Notizen aus der Datenbank ab.
+  //Diese Methode ruft alle Notizen aus der Datenbank (das Ergebnis von der query) ab.
 
   Future<DatabaseNote> getNote({required int id}) async { //Dies ist eine asynchrone Methode, die eine DatabaseNote für eine gegebene ID zurückgibt. Der Parameter id ist erforderlich
     await _ensureDbIsOpen();
@@ -105,13 +105,13 @@ class NotesService {
     final notes = await db.query(
       noteTable, //Der Name der Tabelle, aus der die Daten abgefragt werden
       limit: 1, //Begrenzen der Ergebnisse auf ein einzelnes Element
-      where: 'id = ?', //Bedingung für die Abfrage, um nur das Element mit der gegebenen id zu finden
-      whereArgs:  [id], //Das Argument für die Bedingung 'id = ?'
+      where: 'id = ?', //Er sucht ob irgendwo 'id =' vorkommt ("?" ist ein Platzhalten für das Ergebnis)
+      whereArgs:  [id], //Hier steht wonach ich suche / nach der "required id" von oben
     );
     //Die Methode "query" durchsucht die Tabelle "noteTable" und verwendet die Bedingung "where: 'id = ?'" mit dem Argument "whereArgs: [id]",
     // um die spezifische Notiz zu finden. Das Ergebnis wird in der Variable "notes" gespeichert.
 
-    if (notes.isNotEmpty) {
+    if (notes.isEmpty) {
       throw CouldNotFindNote();
     } else {
       final note = DatabaseNote.fromRow(notes.first); //Wenn die Abfrage erfolgreich war, wird das erste (und einzige) Ergebnis ("notes.first") in ein DatabaseNote-Objekt umgewandelt
@@ -165,7 +165,7 @@ class NotesService {
 
     const text = ''; //Eine leere Zeichenfolge wird als Standardtext für die neue Notiz festgelegt
     //create the note
-    final noteId = await db.insert(noteTable, { //Diese Zeile fügt eine neue Notiz in die Datenbank ein / Die Methode "db.insert" gibt die ID der eingefügten Notiz ("noteId") zurück
+    final noteId = await db.insert(noteTable, { //Diese Zeile fügt eine neue Notiz in die Datenbank ein / Die Methode "db.insert" gibt die ID der eingefügten Notiz ("noteId") zurück / "insert" gibt als Rückgabewert eine id zurück
       userIdColumn: owner.id, //Die Notiz enthält die "userId", "text" und "isSyncedWithCloud"-Spalten
       textColumn: text,
       isSyncedWithCloudColumn: 1
