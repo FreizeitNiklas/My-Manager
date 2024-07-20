@@ -11,6 +11,6 @@ Future<bool> showLogOutDialog(BuildContext context) {
         'Log out': true,
       },
   ).then(
-      (value) => value ?? false,
+      (value) => value ?? false, // Wenn der zurückgegebene Wert "null" ist, setze ihn auf false
   );
 }
