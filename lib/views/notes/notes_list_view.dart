@@ -2,21 +2,24 @@ import 'package:flutter/material.dart';
 import '../../services/crud/notes_service.dart';
 import '../../utilities/dialogs/delete_dialog.dart';
 
-typedef DeleteNoteCallback = void Function(DatabaseNote note);
+typedef NoteCallback = void Function(DatabaseNote note);
 //tyodef: Weil benutzerdefinierter Funktionstyp
-//DNC: Name des neuen Typs
+//NC: Name des neuen Typs
 //v F(DN n): Spezifiziert die Funktion von DNC
 //F(DN n): Beschreibt eine Funktion. Diese erwartet ein Argument vom typ "DN" und trägt den Namen "note"
 //-> DNC ist eine neue Funktion, welche ein einzelnes Argument vom typ DN nimmt aber nichts zurückgibt
 
 class NotesListView extends StatelessWidget { //NLV erbt von SW
   final List<DatabaseNote> notes; //notes ist eine Liste von DN Objekten
-  final DeleteNoteCallback onDeleteNote; //oDN ist eine Callback Funktion, die aufgerufen wird, wenn eine Notiz gelöscht wird
+  final NoteCallback onDeleteNote; //oDN ist eine Callback Funktion, die aufgerufen wird, wenn eine Notiz gelöscht wird
+  final NoteCallback onTap;
+  // Weißt der NLV verschiedene Dokumente/Funktionen zu
 
   const NotesListView({ //In der Klammer: Parameterliste
     Key? key, //key ist eine Klasse um Widgets eindeutig zu identifizieren (ID) / Hilft Flutter bei Geschwindigkeit
     required this.notes,
     required this.onDeleteNote,
+    required this.onTap,
   }) : super(key: key); //hier wird das key Element übergeben
   //Erstellung einer Instanz von NotesListView mit einem Key und notwenidgen parametern
 
@@ -27,6 +30,9 @@ class NotesListView extends StatelessWidget { //NLV erbt von SW
       itemBuilder: (context, index) { // Verknüft die Funktion mit dem Widget? // Erzeugt Widgets basierend auf der Index-Position
         final note = notes[index]; // Abrufung von "note"-Objekt basierend auf dem Index
         return ListTile( // LT: Um eine Zeile der Liste darzustellen
+          onTap: () {
+            onTap(note);
+          },
           title: Text( // verknüpfung des Titels (was ich sehe) mit einem Text-Widget
             note.text, // verknüpfung von der Eigenschaft "text" von "DatabaseNote"
             maxLines: 1, // maximal eine Zeile

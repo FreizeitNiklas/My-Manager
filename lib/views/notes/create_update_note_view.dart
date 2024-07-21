@@ -1,16 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tutorial_flutter/services/crud/notes_service.dart';
+import 'package:tutorial_flutter/utilities/generics/get_arguments.dart';
 import '../../services/auth/auth_service.dart';
 
-class NewNoteView extends StatefulWidget {
-  const NewNoteView({super.key});
+class CreateUpdateNoteView extends StatefulWidget {
+  const CreateUpdateNoteView({super.key});
 
   @override
-  State<NewNoteView> createState() => _NewNoteViewState();
+  State<CreateUpdateNoteView> createState() => _CreateUpdateNoteView();
 }
 
-class _NewNoteViewState extends State<NewNoteView> {
+class _CreateUpdateNoteView extends State<CreateUpdateNoteView> {
   DatabaseNote? _note;
   //Die Variable "_note" (vom Typ "DatabaseNote") sorgt dafür, dass die Notiz in der "NewNoteView" gespeichert wird
   late final NotesService _notesService;
@@ -35,13 +36,23 @@ class _NewNoteViewState extends State<NewNoteView> {
     );
   }
 //Jedes Mal, wenn der Benutzer eine Änderung vornimmt, wird die Methode aufgerufen und aktualisiert die Notiz in der Datenbank
-  
+
   void _setupTextControllerListener() { //sorgt dafür, dass der "_textControllerListener" korrekt an den "_textController" angehängt wird
     _textController.removeListener(_textControllerListener); //zuerst den Listener entfernen
     _textController.addListener(_textControllerListener); //dann wieder hinzufügen
   } //so können niemals zwei Listener gleichzeitig laufen
-  
-  Future<DatabaseNote> createNewNote(BuildContext context) async {
+
+  Future<DatabaseNote> createOrGetExistingNote(BuildContext context) async {
+
+    final widgetNote = context.getArgument<DatabaseNote>();
+    // Versucht, ein Argument vom Typ DatabaseNote aus dem Kontext abzurufen.
+    // Wird das hier verwendet, um zu überprüfen ob schon eine existierende Notiz da ist?
+
+    if (widgetNote != null) { // Überprüft, ob widgetNote nicht null ist, was bedeutet, dass eine existierende Notiz gefunden wurde.
+      _note = widgetNote; // Übergibt die gefundene Notiz an eine private Variable "_note"
+      _textController.text = widgetNote.text; // Setzt den Text im Text-Controller auf den Text der gefundenen Notiz
+      return widgetNote; // Gibt die existierende Notiz zurück.
+    }
 
     final existingNote = _note; //Weist die bestehende Notiz (falls vorhanden) der lokalen Variable "existingNote" zu
     if (existingNote != null) { //und auch nicht "null" ist
@@ -50,7 +61,9 @@ class _NewNoteViewState extends State<NewNoteView> {
     final currentUser = AuthService.firebase().currentUser!; //Holt den aktuellen Benutzer vom AuthService
     final email = currentUser.email!; //Holt die E-Mail-Adresse des aktuellen Benutzers
     final owner = await _notesService.getUser(email: email); //Ruft den Benutzer mit der angegebenen E-Mail-Adresse vom NotesService ab.
-    return await _notesService.createNote(owner: owner); //Erstellt eine neue Notiz für den Benutzer und gibt diese zurück
+    final newNote = await _notesService.createNote(owner: owner); //Erstellt eine neue Notiz für den Benutzer und gibt diese zurück
+    _note = newNote;
+    return newNote;
   }
 
   void _deleteNoteIfTextIsEmpty() {
@@ -86,11 +99,10 @@ class _NewNoteViewState extends State<NewNoteView> {
         title: const Text('New Note'),
       ),
       body: FutureBuilder(
-        future: createNewNote(context),
+        future: createOrGetExistingNote(context),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) { //prüft die aktuelle ("snapchot") Verbindung
             case ConnectionState.done: //Dieser Fall tritt ein, wenn das Future abgeschlossen ist und ein Ergebnis zurückgegeben hat
-              _note = snapshot.data as DatabaseNote; //Hier wird das Ergebnis des abgeschlossenen Futures in "_note" gespeichert
               _setupTextControllerListener(); //Diese Methode wird aufgerufen, um einen Listener auf "_textController" zu setzen
               return TextField(
                 controller: _textController, //nutzt den "_textController" als Steuerung um den Textinhalt zu verwalten

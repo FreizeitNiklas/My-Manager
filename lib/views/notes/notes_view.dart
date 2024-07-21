@@ -31,7 +31,7 @@ class _NotesViewState extends State<NotesView> {
         actions: [
           IconButton(
               onPressed: (){
-                Navigator.of(context).pushNamed(newNoteRoute); //Navigiert zu "newNoteRoute"
+                Navigator.of(context).pushNamed(createOrUpdateNoteRoute); //Navigiert zu "newNoteRoute"
               },
               icon: const Icon(Icons.add)), //Ein "add"-Icon
           PopupMenuButton<MenuAction>(
@@ -77,6 +77,13 @@ class _NotesViewState extends State<NotesView> {
                             notes: allNotes,
                             onDeleteNote: (note) async {
                               await _notesService.deleteNote(id: note.id);
+                            },
+                            onTap: (note) {
+                              Navigator.of(context).pushNamed(
+                                createOrUpdateNoteRoute,
+                                arguments: note,
+                                //Beim drücken wird die cOUNR ausgeführt und die "note" übergeben
+                              );
                             },
                           );
                         } else {
