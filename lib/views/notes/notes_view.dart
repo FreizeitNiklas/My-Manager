@@ -20,7 +20,7 @@ class _NotesViewState extends State<NotesView> {
   @override
   void initState() { //"initState" wird einmalig aufgerufen, wenn das StatefulWidget zum ersten Mal eingefügt wird. Hier werden alle Initialisierungen vorgenommen, die nur einmal durchgeführt werden müssen.
     _notesService = NotesService();
-    super.initState(); //Wird genutzt um sicherzustellen, dass die Initialisierungen der Basisklasse abgeschlossen sind (bewährte Methode), bevor die abgeleitete Klasse initialisiert
+    super.initState(); //mit "super" kann man Funktionen aus der Basisiklasse aufrufen
   }
 
   @override

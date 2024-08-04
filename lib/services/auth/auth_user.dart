@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 class AuthUser {
     final String? email;
     final bool isEmailVerified;
-    const AuthUser({
-        required this.email,
+    const AuthUser({ // das ist eine Instanz von AU / Die Instanz hat zwei requierte Elemente
+        required this.email, // mit "this" holt man sich die Elemente der Basisiklasse (AU von "oben")
         required this.isEmailVerified,
     });
 

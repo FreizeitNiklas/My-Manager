@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
 import 'crud_exceptions.dart';
+import 'package:tutorial_flutter/extensions/list/filter.dart';
 
 class NotesService {
   Database? _db; //"_db" ist eine Instanz der Datenbank / sie ist anfang Null, bis die Datenbank geöffnet wird
@@ -11,6 +12,8 @@ class NotesService {
 
   List<DatabaseNote> _notes = []; //Diese Liste hält alle Notizen die aus der Datenbank geladen werden. Sie dient als Cache.
   //Mit "_notes" werden die Notizen gecached
+
+  DatabaseUser? _user;
 
   static final NotesService _shared = NotesService._sharedInstance();
   //Erstellung einer einzelnen statischen Instanz von "NotesService"
@@ -33,15 +36,32 @@ class NotesService {
 //Die Zeile definiert eine Variable "_notesStreamController" als "StreamController",
 // die eine Liste von DatabaseNote-Objekten verwaltet.
 
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes =>
+      _notesStreamController.stream.filter((note) {
+        final currentUser = _user;
+        if (currentUser != null) {
+          return note.userId == currentUser.id;
+        } else {
+          throw UserShouldBeSetBeforeReadingAllNotes();
+        }
+      });
 //"allNotes" ist ein Stream, den die UI oder andere Teile der Anwendung abonnieren können, um über Änderungen an den Notizen informiert zu werden.
 
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({
+    required String email,
+    bool setAsCurrentUser = true,
+  }) async {
     try {
       final user = await getUser(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
       return user;
     } on CouldNotFindUser {
       final createdUser = await createUser(email: email);
+      if (setAsCurrentUser) {
+        _user = createdUser;
+      }
       return createdUser;
     } catch (e) {
       rethrow;
@@ -50,9 +70,9 @@ class NotesService {
 //Diese Methode versucht, einen Benutzer mit der angegebenen E-Mail-Adresse zu finden. Wenn der Benutzer nicht existiert, wird ein neuer Benutzer erstellt.
 
   Future<void> _cacheNotes() async {
-    final allNotes = await getAllNotes();
-    _notes = allNotes.toList();
-    _notesStreamController.add(_notes);
+    final allNotes = await getAllNotes(); //übergeben von gAN an aN
+    _notes = allNotes.toList(); //Inhalt von aN wird in eine Liste verwandelt und _n übergeben
+    _notesStreamController.add(_notes); //den Stream mit _n aktualisiert
   }
   //Diese Methode lädt alle Notizen aus der Datenbank und aktualisiert den lokalen Cache und den StreamController.
 
@@ -67,10 +87,15 @@ class NotesService {
     await getNote(id: note.id); //Überprüft, ob die Notiz mit der angegebenen id in der Datenbank existiert
 
     // update DB
-    final updatesCount = await db.update(noteTable,{
-      textColumn: text,
-      isSyncedWithCloudColumn: 0,
-    });
+    final updatesCount = await db.update(
+      noteTable,
+      {
+        textColumn: text,
+        isSyncedWithCloudColumn: 0,
+      },
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
     //Aktualisiert die Notiz in der Datenbank, indem sie den Text der Notiz (textColumn) und den isSyncedWithCloudColumn auf 0 setzt.
 
     if (updatesCount == 0) {
