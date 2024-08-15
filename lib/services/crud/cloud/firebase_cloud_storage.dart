@@ -38,7 +38,7 @@ class FirebaseCloudStorage {
     .where((note) => note.ownerUserId == ownerUserId)); // filtern der "note" nach den "note" bei denen der "ownerUserId" übereinstimmt
 
   // Methode zum Abrufen aller Notizen eines bestimmten Benutzers
-  Future<Iterable<CloudNote>> getNotes({required String ownerUserId}) async{
+  Future<Iterable<CloudNote>> getNotes({required String ownerUserId}) async{ //Hab hier einen Error?!
     try {
       // Abrufen aller Dokumente aus der 'notes'-Sammlung, die zum angegebenen Benutzer gehören
       await notes
