@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tutorial_flutter/services/auth/auth_service.dart';
-import 'package:tutorial_flutter/services/crud/notes_service.dart';
+import 'package:tutorial_flutter/services/cloud/cloud_note.dart';
+import 'package:tutorial_flutter/services/cloud/firebase_cloud_storage.dart';
 import 'package:tutorial_flutter/views/notes/notes_list_view.dart';
 import '../../constants/routes.dart';
 import '../../enums/menu_action.dart';
@@ -14,12 +15,12 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
-  late final NotesService _notesService; //"late" bedeutet es wird erst initialisiert, sobald verwendet wird
-  String get userEmail => AuthService.firebase().currentUser!.email!;
+  late final FirebaseCloudStorage _notesService; //"late" bedeutet es wird erst initialisiert, sobald verwendet wird
+  String get userId => AuthService.firebase().currentUser!.id;
 
   @override
   void initState() { //"initState" wird einmalig aufgerufen, wenn das StatefulWidget zum ersten Mal eingefügt wird. Hier werden alle Initialisierungen vorgenommen, die nur einmal durchgeführt werden müssen.
-    _notesService = NotesService();
+    _notesService = FirebaseCloudStorage();
     super.initState(); //mit "super" kann man Funktionen aus der Basisiklasse aufrufen
   }
 
@@ -59,48 +60,37 @@ class _NotesViewState extends State<NotesView> {
           )
         ],
       ),
-      body: FutureBuilder( //Ein FutureBuilder, der eine asynchrone Operation überwacht und basierend auf dem Zustand des Future verschiedene Widgets anzeigt.
-        future: _notesService.getOrCreateUser(email: userEmail), //Das Future, das überwacht wird.
-        // Es ruft die Methode "getOrCreateUser" des "NotesService auf", um sicherzustellen, dass der Benutzer vorhanden ist oder erstellt wird.
-        builder: (context, snapshot) { //Eine Funktion, die basierend auf dem aktuellen Zustand des Future verschiedene Widgets rendert. Der snapshot enthält den aktuellen Zustand des Future.
-          switch (snapshot.connectionState) { //Ein switch-Statement, das den Zustand des Future überprüft und entsprechend reagiert.
-            case ConnectionState.done: //Wenn der Future abgeschlossen ist (done), wird ein StreamBuilder verwendet, um die Notizen anzuzeigen.
-              return StreamBuilder(
-                stream: _notesService.allNotes,
+      body: StreamBuilder(
+                stream: _notesService.allNotes(ownerUserId: userId),
                 builder: (context, snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting: //Wenn auf die Fertigstellung des Future gewartet wird, wird ein Text "Waiting for all notes..." angezeigt.
                     case ConnectionState.active: //Wenn der Stream aktiv ist und Daten sendet --> Es wird auch der Text returnt
-                        if (snapshot.hasData) {
-                          final allNotes = snapshot.data as List<DatabaseNote>;
-                          return NotesListView(
-                            notes: allNotes,
-                            onDeleteNote: (note) async {
-                              await _notesService.deleteNote(id: note.id);
-                            },
-                            onTap: (note) {
-                              Navigator.of(context).pushNamed(
-                                createOrUpdateNoteRoute,
-                                arguments: note,
-                                //Beim drücken wird die cOUNR ausgeführt und die "note" übergeben
-                              );
-                            },
-                          );
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                    default:
-                      return const CircularProgressIndicator();
-                      //"ConnectionState.active" wird verwendet, um anzuzeigen, dass der Stream aktiv ist und Daten sendet,
-                      //aber noch nicht abgeschlossen ist. Durch das Kombinieren von "ConnectionState.waiting" und
-                      //"ConnectionState.active" im "switch"-Statement kann die Benutzeroberfläche in beiden Fällen
-                      //denselben Hinweis ("Waiting for all notes...") anzeigen, um den Benutzer darüber zu informieren,
-                      //dass das System auf die Verfügbarkeit der Notizen wartet.
-                  }
-                },
-              );
-            default:
-              return const CircularProgressIndicator();
+                      if (snapshot.hasData) {
+                        final allNotes = snapshot.data as Iterable<CloudNote>;
+                        return NotesListView(
+                          notes: allNotes,
+                          onDeleteNote: (note) async {
+                            await _notesService.deleteNote(documentId: note.documentId);
+                          },
+                          onTap: (note) {
+                            Navigator.of(context).pushNamed(
+                              createOrUpdateNoteRoute,
+                              arguments: note,
+                              //Beim drücken wird die cOUNR ausgeführt und die "note" übergeben
+                            );
+                          },
+                        );
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                      default:
+                        return const CircularProgressIndicator();
+    //"ConnectionState.active" wird verwendet, um anzuzeigen, dass der Stream aktiv ist und Daten sendet,
+    //aber noch nicht abgeschlossen ist. Durch das Kombinieren von "ConnectionState.waiting" und
+    //"ConnectionState.active" im "switch"-Statement kann die Benutzeroberfläche in beiden Fällen
+    //denselben Hinweis ("Waiting for all notes...") anzeigen, um den Benutzer darüber zu informieren,
+    //dass das System auf die Verfügbarkeit der Notizen wartet.
           }
         },
       ),

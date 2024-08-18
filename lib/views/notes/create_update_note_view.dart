@@ -1,8 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tutorial_flutter/services/crud/notes_service.dart';
 import 'package:tutorial_flutter/utilities/generics/get_arguments.dart';
 import '../../services/auth/auth_service.dart';
+import 'package:tutorial_flutter/services/cloud/cloud_note.dart';
+import 'package:tutorial_flutter/services/cloud/firebase_cloud_storage.dart';
 
 class CreateUpdateNoteView extends StatefulWidget {
   const CreateUpdateNoteView({super.key});
@@ -12,14 +12,14 @@ class CreateUpdateNoteView extends StatefulWidget {
 }
 
 class _CreateUpdateNoteView extends State<CreateUpdateNoteView> {
-  DatabaseNote? _note;
+  CloudNote? _note;
   //Die Variable "_note" (vom Typ "DatabaseNote") sorgt dafür, dass die Notiz in der "NewNoteView" gespeichert wird
-  late final NotesService _notesService;
+  late final FirebaseCloudStorage _notesService;
   late final TextEditingController _textController; //"TextEditingController" steuert den Text der in einem Feld angezeigt wird
 
   @override
   void initState() { //"initState" inzitalisiert notwendige Abhängigkeiten, bevor das Widget verwendet wird
-    _notesService = NotesService();
+    _notesService = FirebaseCloudStorage();
     _textController = TextEditingController();
     super.initState(); //Sicherstellung, dass alles intialisiert wurde (Standard-Code von Flutter)
   }
@@ -31,8 +31,8 @@ class _CreateUpdateNoteView extends State<CreateUpdateNoteView> {
     }
     final text = _textController.text;
     await _notesService.updateNote(
-        note: note,
-        text: text,
+      documentId: note.documentId,
+      text: text,
     );
   }
 //Jedes Mal, wenn der Benutzer eine Änderung vornimmt, wird die Methode aufgerufen und aktualisiert die Notiz in der Datenbank
@@ -42,9 +42,9 @@ class _CreateUpdateNoteView extends State<CreateUpdateNoteView> {
     _textController.addListener(_textControllerListener); //dann wieder hinzufügen
   } //so können niemals zwei Listener gleichzeitig laufen
 
-  Future<DatabaseNote> createOrGetExistingNote(BuildContext context) async {
+  Future<CloudNote> createOrGetExistingNote(BuildContext context) async {
 
-    final widgetNote = context.getArgument<DatabaseNote>();
+    final widgetNote = context.getArgument<CloudNote>();
     // Versucht, ein Argument vom Typ DatabaseNote aus dem Kontext abzurufen.
     // Wird das hier verwendet, um zu überprüfen ob schon eine existierende Notiz da ist?
 
@@ -59,9 +59,8 @@ class _CreateUpdateNoteView extends State<CreateUpdateNoteView> {
       return existingNote; //Dann gib die bestehende Notiz zurück
     }
     final currentUser = AuthService.firebase().currentUser!; //Holt den aktuellen Benutzer vom AuthService
-    final email = currentUser.email; //Holt die E-Mail-Adresse des aktuellen Benutzers
-    final owner = await _notesService.getUser(email: email!); //Ruft den Benutzer mit der angegebenen E-Mail-Adresse vom NotesService ab.
-    final newNote = await _notesService.createNote(owner: owner); //Erstellt eine neue Notiz für den Benutzer und gibt diese zurück
+    final userId = currentUser.id;
+    final newNote = await _notesService.createNewNote(ownerUserId: userId);
     _note = newNote;
     return newNote;
   }
@@ -69,7 +68,7 @@ class _CreateUpdateNoteView extends State<CreateUpdateNoteView> {
   void _deleteNoteIfTextIsEmpty() {
     final note = _note; //Weist "_note" "note" zu
     if (_textController.text.isEmpty && note != null){ //wenn der Text leer ist und ("&&") nicht "null" ist
-      _notesService.deleteNote(id: note.id); //dann lösch die Notiz anhand ihrer id
+      _notesService.deleteNote(documentId: note.documentId); //dann lösch die Notiz anhand ihrer id
     }
   }
 
@@ -78,8 +77,8 @@ class _CreateUpdateNoteView extends State<CreateUpdateNoteView> {
     final text = _textController.text;
     if (note != null && text.isNotEmpty) {
       await _notesService.updateNote(
-          note: note,
-          text: text,
+        documentId: note.documentId,
+        text: text,
       );
     }
   }

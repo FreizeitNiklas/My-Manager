@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../services/crud/notes_service.dart';
+import '../../services/cloud/cloud_note.dart';
 import '../../utilities/dialogs/delete_dialog.dart';
 
-typedef NoteCallback = void Function(DatabaseNote note);
+typedef NoteCallback = void Function(CloudNote note);
 //tyodef: Weil benutzerdefinierter Funktionstyp
 //NC: Name des neuen Typs
 //v F(DN n): Spezifiziert die Funktion von DNC
@@ -10,7 +10,7 @@ typedef NoteCallback = void Function(DatabaseNote note);
 //-> DNC ist eine neue Funktion, welche ein einzelnes Argument vom typ DN nimmt aber nichts zurückgibt
 
 class NotesListView extends StatelessWidget { //NLV erbt von SW
-  final List<DatabaseNote> notes; //notes ist eine Liste von DN Objekten
+  final Iterable<CloudNote> notes; //notes ist eine Liste von DN Objekten
   final NoteCallback onDeleteNote; //oDN ist eine Callback Funktion, die aufgerufen wird, wenn eine Notiz gelöscht wird
   final NoteCallback onTap;
   // Weißt der NLV verschiedene Dokumente/Funktionen zu
@@ -28,7 +28,7 @@ class NotesListView extends StatelessWidget { //NLV erbt von SW
     return ListView.builder( // Darstellung der Liste
       itemCount: notes.length, // iC: Gibt die anzahl der Elemente in einer Liste an
       itemBuilder: (context, index) { // Verknüft die Funktion mit dem Widget? // Erzeugt Widgets basierend auf der Index-Position
-        final note = notes[index]; // Abrufung von "note"-Objekt basierend auf dem Index
+        final note = notes.elementAt(index); // Abrufung von "note"-Objekt basierend auf dem Index
         return ListTile( // LT: Um eine Zeile der Liste darzustellen
           onTap: () {
             onTap(note);

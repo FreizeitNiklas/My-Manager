@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tutorial_flutter/services/crud/cloud/cloud_storage_constants.dart';
-import 'package:tutorial_flutter/services/crud/cloud/cloud_storage_exceptions.dart';
+import 'package:tutorial_flutter/services/cloud/cloud_storage_constants.dart';
+import 'package:tutorial_flutter/services/cloud/cloud_storage_exceptions.dart';
 import 'cloud_note.dart';
 
 class FirebaseCloudStorage {
@@ -41,34 +41,33 @@ class FirebaseCloudStorage {
   Future<Iterable<CloudNote>> getNotes({required String ownerUserId}) async{ //Hab hier einen Error?!
     try {
       // Abrufen aller Dokumente aus der 'notes'-Sammlung, die zum angegebenen Benutzer gehören
-      await notes
+      return await notes
           .where(
             ownerUserIdFieldName,
             isEqualTo: ownerUserId
           )
           .get() // Führt die Abfrage aus und holt die entsprechenden Dokumente
           .then( // Nach dem Abrufen der Dokumente wird eine Funktion ausgeführt
-            (value) => value.docs.map( // "(value)" ist das Ergebnis von ".get" / Mapped jedes Dokument (doc) in der Liste der abgerufenen Dokumente (value.docs)
-             (doc) { // sorgt dafür, dass das {} auf jedes "doc" in der Liste angewendet wird
-              return CloudNote( // Gibt eine "CloudNote" zurück
-                documentId: doc.id, // Weist die Dokument-ID der Notiz zu
-                ownerUserId: doc.data()[ownerUserIdFieldName] as String, // Weist die Benutzer-ID aus den Dokumentdaten zu
-                text: doc.data()[textFieldName] as String, // Weist den Textinhalt der Notiz aus den Dokumentdaten zu
-              );
-            },
-         ),
-       );
+            (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)),
+            // "(value)" ist das Ergebnis von ".get" / Mapped jedes Dokument (doc) in der Liste der abgerufenen Dokumente (value.docs)
+         );
     } catch (e) {
       throw CouldNotGetAllNotesException();
     }
   }
 
   // Erstellen einer neuen Notiz
-  void createNewNote({required String ownerUserID}) async {
-    notes.add({
-      ownerUserIdFieldName: ownerUserID,
+  Future<CloudNote> createNewNote({required String ownerUserId}) async {
+    final document = await notes.add({
+      ownerUserIdFieldName: ownerUserId,
       textFieldName: '',
     });
+    final fetchNote = await document.get();
+    return CloudNote(
+      documentId: fetchNote.id,
+      ownerUserId: ownerUserId,
+      text: '',
+    );
   }
 
   // Singleton-Pattern: Statische Instanz der Klasse
