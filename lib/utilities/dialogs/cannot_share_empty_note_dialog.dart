@@ -6,8 +6,8 @@ Future<void> showCannotShareEmptyNoteDialog(BuildContext context){
       context: context,
       title: 'Sharing',
       content: 'You cannot share an empty note!',
-      optionsBuilder: () => {
-        'OK': 'null'
+      optionsBuilder: () => { // Es werden Optionen erzuegt, welche dem Nutzer im Dialogfeld angezeigt werden
+        'OK': 'null' // Man kann auf 'OK' klicken, es wird aber nichts passieren
       },
   );
 }

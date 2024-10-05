@@ -49,7 +49,6 @@ class _CreateUpdateNoteView extends State<CreateUpdateNoteView> {
 
     final widgetNote = context.getArgument<CloudNote>();
     // Versucht, ein Argument vom Typ DatabaseNote aus dem Kontext abzurufen.
-    // Wird das hier verwendet, um zu überprüfen ob schon eine existierende Notiz da ist?
 
     if (widgetNote != null) { // Überprüft, ob widgetNote nicht null ist, was bedeutet, dass eine existierende Notiz gefunden wurde.
       _note = widgetNote; // Übergibt die gefundene Notiz an eine private Variable "_note"
