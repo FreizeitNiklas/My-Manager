@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:tutorial_flutter/services/auth/auth_service.dart';
+import 'package:tutorial_flutter/services/auth/bloc/auth_bloc.dart';
+import 'package:tutorial_flutter/services/auth/bloc/auth_event.dart';
 import 'package:tutorial_flutter/services/cloud/cloud_note.dart';
 import 'package:tutorial_flutter/services/cloud/firebase_cloud_storage.dart';
 import 'package:tutorial_flutter/views/notes/notes_list_view.dart';
 import '../../constants/routes.dart';
 import '../../enums/menu_action.dart';
 import '../../utilities/dialogs/logout_dialog.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' show ReadContext;
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key}); //Sicherstellung, dass der "key" richtig übergeben wird / aber was ist der "key"?
@@ -41,10 +44,8 @@ class _NotesViewState extends State<NotesView> {
                 case MenuAction.logout: //Wenn die Abmeldeoption (logout) ausgewählt wird, wird der folgende Code ausgeführt:
                   final shouldLogout = await showLogOutDialog(context); //Zeigt ein Dialogfeld an, das den Benutzer fragt, ob er sich abmelden möchte.
                   if (shouldLogout) { //Wenn der Benutzer die Abmeldung bestätigt (shouldLogout ist true), wird der folgende Code ausgeführt:
-                    await AuthService.firebase().logout(); //Ruft die Abmeldefunktion des AuthService auf, um den Benutzer abzumelden.
-                    Navigator.of(context).pushNamedAndRemoveUntil( //Navigiert zum Anmeldebildschirm (loginRoute) und entfernt alle vorherigen Routen aus dem Navigator-Stack.
-                      loginRoute,
-                          (_) => false, //Der zweite Parameter ist eine Rückruffunktion, die false zurückgibt, was bedeutet, dass keine der vorherigen Routen beibehalten werden sollen.
+                    context.read<AuthBloc>().add(
+                      const AuthEventLogOut(),
                     );
                   }
               }
