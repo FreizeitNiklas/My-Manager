@@ -16,17 +16,15 @@ class AuthStateLoggedIn extends AuthState { // Speichert Informationen über den
   const AuthStateLoggedIn(this.user);
 }
 
-class AuthStateLoginFailure extends AuthState { // Speichert den Fehler, der während des Anmeldeversuchs aufgetreten ist
-  final Exception exception;
-  const AuthStateLoginFailure(this.exception);
-}
-
 class AuthStateNeedsVerification extends AuthState { // User ist angemeldet aber Mail nicht verifiziert
   const AuthStateNeedsVerification();
 }
 
 class AuthStateLoggedOut extends AuthState { // User ist ausgelogged
-  const AuthStateLoggedOut();
+  final Exception? exception; // 'Exception?' wird für Null-Sicherheit genutzt
+  // Die Variable 'exception' speichert die Fehlermeldung
+  // Durch 'E?' wird vorgeben, dass 'e' entweder eine "Exception" oder "null" ist
+  const AuthStateLoggedOut(this.exception);
 }
 
 class AuthStateLogoutFailure extends AuthState { // Wenn ein Fehler während des ausloggens auftritt
