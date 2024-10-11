@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart' show immutable;
 import 'package:tutorial_flutter/services/auth/auth_user.dart';
+import 'package:equatable/equatable.dart';
 
 @immutable // Die Instanzen der Klasse können nach ihrer Erstellung nicht mehr verändert werden
 abstract class AuthState { // beschreibt den allgemeinen Zustand der Authentifiezierung
@@ -7,8 +8,13 @@ abstract class AuthState { // beschreibt den allgemeinen Zustand der Authentifie
   const AuthState();
 }
 
-class AuthStateLoading extends AuthState { // Authentifizierung lädt im Hintergrund
-  const AuthStateLoading();
+class AuthStateUninitialized extends AuthState {
+  const AuthStateUninitialized();
+}
+
+class AuthStateRegistering extends AuthState {
+  final Exception? exception;
+  const AuthStateRegistering(this.exception);
 }
 
 class AuthStateLoggedIn extends AuthState { // Speichert Informationen über den eingeloggten User (Name & logged in Status)
@@ -20,14 +26,17 @@ class AuthStateNeedsVerification extends AuthState { // User ist angemeldet aber
   const AuthStateNeedsVerification();
 }
 
-class AuthStateLoggedOut extends AuthState { // User ist ausgelogged
+// User ist ausgelogged
+class AuthStateLoggedOut extends AuthState with EquatableMixin {
   final Exception? exception; // 'Exception?' wird für Null-Sicherheit genutzt
   // Die Variable 'exception' speichert die Fehlermeldung
   // Durch 'E?' wird vorgeben, dass 'e' entweder eine "Exception" oder "null" ist
-  const AuthStateLoggedOut(this.exception);
-}
+  final bool isLoading;
+  const AuthStateLoggedOut({
+    required this.exception,
+    required this.isLoading
+  });
 
-class AuthStateLogoutFailure extends AuthState { // Wenn ein Fehler während des ausloggens auftritt
-  final Exception exception; // speichert den Fehler
-  const AuthStateLogoutFailure(this.exception);
+  @override
+  List<Object?> get props => [exception, isLoading];
 }
