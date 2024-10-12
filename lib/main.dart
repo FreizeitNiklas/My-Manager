@@ -26,10 +26,6 @@ void main() {
         child: const HomePage() // Das Kind ist die HomePage, die auf den AuthBloc zugreifen kann.
       ),
       routes: {
-        loginRoute: (context) => const LoginView(), // Die Login-Seite.
-        registerRoute: (context) => const RegisterView(), // Die Registrierungsseite.
-        notesRoute: (context) => const NotesView(), // Die Notizenübersicht.
-        verifyEmailRoute: (context) => const VerifyEmailView(), // Seite zum Bestätigen der E-Mail-Adresse.
         createOrUpdateNoteRoute: (context) => const CreateUpdateNoteView(), // Seite zum Erstellen/Aktualisieren einer Notiz.
         // Der context ist eine Referenz, die Flutter benötigt, um zu wissen, wo das aktuelle Widget sich im Baum befindet
         // und welche übergeordneten Informationen und Zustände verfügbar sind.
@@ -57,7 +53,9 @@ class HomePage extends StatelessWidget {
           return const VerifyEmailView();
         } else if (state is AuthStateLoggedOut) {
           return const LoginView();
-        } else {
+        } else if (state is AuthStateRegistering) {
+          return const RegisterView();
+      } else {
           return const Scaffold(
             body: CircularProgressIndicator(),
           );
