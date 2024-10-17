@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_flutter/services/auth/bloc/auth_bloc.dart';
 import 'package:tutorial_flutter/services/auth/bloc/auth_event.dart';
 import 'package:tutorial_flutter/services/auth/bloc/auth_state.dart';
-import 'package:tutorial_flutter/utilities/dialogs/loading_dialog.dart';
 import '../utilities/dialogs/error_dialog.dart';
 import 'package:tutorial_flutter/services/auth/auth_exceptions.dart';
 
@@ -17,7 +16,6 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email; // controller für die Texteingabe
   late final TextEditingController _password;
-  CloseDialog? _closeDialogHandle;
 //  Diese Variable speichert eine Funktion, um den Lade-Dialog zu schließen.
 //  Sie ist optional (?), da der Dialog möglicherweise nicht geöffnet ist.
 
@@ -41,16 +39,6 @@ class _LoginViewState extends State<LoginView> {
       listener: (context, state) async {
         if (state is AuthStateLoggedOut) { //Sollte dem nicht so sein, dann passiert nichts.
           if (state.exception is UserNotFoundAuthException) { // Überprüft, ob der Grund für den Logout ist, dass ein Benutzer nicht gefunden wurde.
-            final closeDialog = _closeDialogHandle; // Speichert die aktuelle Funktion zum Schließen des Lade-Dialogs.
-            if(!state.isLoading && closeDialog != null) { // Wenn keine Aktion geladen wird und der Dialog geöffnet ist,
-              closeDialog(); // wird der Dialog geschlossen
-              _closeDialogHandle = null; // und die Handhabung des Dialogs auf null gesetzt.
-            } else if (state.isLoading && closeDialog == null) { // Wenn eine Aktion gerade geladen wird und kein Dialog offen ist,
-              _closeDialogHandle = showLoadingDialog( // wird ein neuer Lade-Dialog angezeigt.
-                  context: context,
-                  text: 'Loading...',
-              );
-            } // Das Pop-Up kommt nicht. Hatte versucht es zu fixen aber dann ging die App nicht mehr...
             await showErrorDialog(context, 'User not found');
           } else if (state.exception is WrongPasswordAuthException) {
             await showErrorDialog(context, 'Wrong credentials');
@@ -71,13 +59,6 @@ class _LoginViewState extends State<LoginView> {
   //         _closeDialogHandle = null;  // Reset des Handles
   //       }
   //
-
-
-
-
-
-
-
 
 
   //       // Öffnen des Loading-Dialogs, wenn der Zustand AuthStateLoading ist

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tutorial_flutter/helpers/loading/loading_screen.dart';
 import 'package:tutorial_flutter/services/auth/bloc/auth_bloc.dart';
 import 'package:tutorial_flutter/services/auth/bloc/auth_event.dart';
 import 'package:tutorial_flutter/services/auth/bloc/auth_state.dart';
@@ -45,7 +46,15 @@ class HomePage extends StatelessWidget {
     // um den Authentifizierungsprozess zu initialisieren.
     context.read<AuthBloc>().add(const AuthEventInitialize());
     // Der BlocBuilder wird verwendet, um die Benutzeroberfläche basierend auf dem Zustand des AuthBloc aufzubauen.
-    return BlocBuilder<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) { // Der `listener` wird aufgerufen, wenn sich der Zustand ändert.
+        if (state.isLoading) { // Prüft, ob der aktuelle Zustand den Ladezustand (isLoading) enthält.
+          LoadingScreen().show(context: context, text: state.loadingText ?? 'Please wait a moment',
+          );
+        } else { // Versteckt den Ladebildschirm, wenn `isLoading` nicht aktiv ist.
+          LoadingScreen().hide();
+        }
+      },
       builder: (context, state) {
         if (state is AuthStateLoggedIn) {
           return const NotesView();
