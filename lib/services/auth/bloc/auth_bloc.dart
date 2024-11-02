@@ -7,6 +7,48 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   // Der Konstruktor der AuthBloc-Klasse. Initialisiert den Zustand mit `AuthStateLoading`, d.h., der Ladezustand wird zu Beginn angezeigt.
   AuthBloc(AuthProvider provider)
       : super(const AuthStateUninitialized(isLoading: true)) {
+    on<AuthEventShouldRegister>((event, emit) {
+      emit(const AuthStateRegistering(
+        exception: null,
+        isLoading: false,
+      ));
+    });
+    //forgot password
+    on<AuthEventForgotPassword>((event, emit) async {
+      emit(const AuthStateForgotPassword(
+        exception: null,
+        hasSentEmail: false,
+        isLoading: false,
+      ));
+      final email = event.email;
+      if (email == null) {
+        return; // User just wants to go forgot-password screen.
+      }
+
+      // User wants to actaually sen a forgot-pwssowrd email.
+      emit(const AuthStateForgotPassword(
+        exception: null,
+        hasSentEmail: false,
+        isLoading: true,
+      ));
+
+      bool didSendEmail;
+      Exception? exception;
+      try {
+        await provider.sendPasswordReset(toEmail: email);
+        didSendEmail = true;
+        exception = null;
+      } on Exception catch (e) {
+        didSendEmail = false;
+        exception = e;
+      }
+
+      emit(AuthStateForgotPassword(
+        exception: exception,
+        hasSentEmail: didSendEmail,
+        isLoading: false,
+      ));
+    });
     // AuthBloc ist der Konstruktor // (AP p) ist der Paramter des Konstruktors
     // ':' Dies ist eine Initialisierer-Liste.
     // Sie ermöglicht es, dem Konstruktor der Basisklasse Werte zu übergeben, bevor der Konstruktor der abgeleiteten Klasse ausgeführt wird.
@@ -27,7 +69,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           password: password,
         );
         await provider.sendEmailVerification();
-        emit(const AuthStateNeedsVerification(isLoading: false)); // Der Zustand wird in AuthStateNeedsVerification geändert.
+        emit(const AuthStateNeedsVerification(
+            isLoading:
+                false)); // Der Zustand wird in AuthStateNeedsVerification geändert.
       } on Exception catch (e) {
         //  Falls ein Fehler auftritt, wird der Zustand in AuthStateRegistering geändert, und die Ausnahme wird übergeben.
         emit(AuthStateRegistering(

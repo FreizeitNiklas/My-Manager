@@ -35,11 +35,17 @@ class _LoginViewState extends State<LoginView> {
 
   @override // Hier überschreibst du die Methode build, die für den Aufbau des Benutzeroberflächen-Widgets verantwortlich ist.
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>( // Listener reagiert auf 'AuthState' Änderung, welche vom 'AuthBloc' kommen.
+    return BlocListener<AuthBloc, AuthState>(
+      // Listener reagiert auf 'AuthState' Änderung, welche vom 'AuthBloc' kommen.
       listener: (context, state) async {
-        if (state is AuthStateLoggedOut) { //Sollte dem nicht so sein, dann passiert nichts.
-          if (state.exception is UserNotFoundAuthException) { // Überprüft, ob der Grund für den Logout ist, dass ein Benutzer nicht gefunden wurde.
-            await showErrorDialog(context, 'User not found');
+        if (state is AuthStateLoggedOut) {
+          //Sollte dem nicht so sein, dann passiert nichts.
+          if (state.exception is UserNotFoundAuthException) {
+            // Überprüft, ob der Grund für den Logout ist, dass ein Benutzer nicht gefunden wurde.
+            await showErrorDialog(
+              context,
+              'Cannot fina a user with the entered credentials!',
+            );
           } else if (state.exception is WrongPasswordAuthException) {
             await showErrorDialog(context, 'Wrong credentials');
           } else if (state.exception is GenericAuthException) {
@@ -47,85 +53,101 @@ class _LoginViewState extends State<LoginView> {
           }
         }
       },
-  // @override
-  // Widget build(BuildContext context) {
-  //   return BlocListener<AuthBloc, AuthState>(
-  //     listener: (context, state) async {
-  //       // Debug: Zustand anzeigen
-  //       print('Aktueller Zustand: $state');  // Ausgabe des aktuellen Zustands
-  //       // Schließen des Loading-Dialogs, wenn der Zustand nicht AuthStateLoading ist
-  //       if (state is! AuthStateLoading && _closeDialogHandle != null) {
-  //         _closeDialogHandle?.call(); // Schließen des Dialogs
-  //         _closeDialogHandle = null;  // Reset des Handles
-  //       }
-  //
+      // @override
+      // Widget build(BuildContext context) {
+      //   return BlocListener<AuthBloc, AuthState>(
+      //     listener: (context, state) async {
+      //       // Debug: Zustand anzeigen
+      //       print('Aktueller Zustand: $state');  // Ausgabe des aktuellen Zustands
+      //       // Schließen des Loading-Dialogs, wenn der Zustand nicht AuthStateLoading ist
+      //       if (state is! AuthStateLoading && _closeDialogHandle != null) {
+      //         _closeDialogHandle?.call(); // Schließen des Dialogs
+      //         _closeDialogHandle = null;  // Reset des Handles
+      //       }
+      //
 
-
-  //       // Öffnen des Loading-Dialogs, wenn der Zustand AuthStateLoading ist
-  //       if (state is AuthStateLoading && _closeDialogHandle == null) {
-  //         _closeDialogHandle = showLoadingDialog(
-  //           context: context,
-  //           text: 'Loading...', // Text des Lade-Dialogs
-  //         );
-  //       }
-  //
-  //       // Fehlerbehandlung, wenn der Benutzer ausgeloggt ist
-  //       if (state is AuthStateLoggedOut) {
-  //         if (state.exception is UserNotFoundAuthException) {
-  //           await showErrorDialog(context, 'User not found');
-  //         } else if (state.exception is WrongPasswordAuthException) {
-  //           await showErrorDialog(context, 'Wrong credentials');
-  //         } else if (state.exception is GenericAuthException) {
-  //           await showErrorDialog(context, 'Authentication error');
-  //         }
-  //       }
-  //     },
+      //       // Öffnen des Loading-Dialogs, wenn der Zustand AuthStateLoading ist
+      //       if (state is AuthStateLoading && _closeDialogHandle == null) {
+      //         _closeDialogHandle = showLoadingDialog(
+      //           context: context,
+      //           text: 'Loading...', // Text des Lade-Dialogs
+      //         );
+      //       }
+      //
+      //       // Fehlerbehandlung, wenn der Benutzer ausgeloggt ist
+      //       if (state is AuthStateLoggedOut) {
+      //         if (state.exception is UserNotFoundAuthException) {
+      //           await showErrorDialog(context, 'User not found');
+      //         } else if (state.exception is WrongPasswordAuthException) {
+      //           await showErrorDialog(context, 'Wrong credentials');
+      //         } else if (state.exception is GenericAuthException) {
+      //           await showErrorDialog(context, 'Authentication error');
+      //         }
+      //       }
+      //     },
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Login'),
         ),
-        body: Column(
-          children: [
-            TextField(
-              controller: _email,
-              enableSuggestions: false, // Dies deaktiviert die Vorschläge, die normalerweise beim Eingeben von Text angezeigt werden, um die Eingabe zu erleichtern.
-              autocorrect: false, // Diese Einstellung deaktiviert die automatische Korrektur der Eingabe im Textfeld.
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Text(
+                'Please log in to your account in oder to interact with and create notes!'),
+              TextField(
+                controller: _email,
+                enableSuggestions:
+                    false, // Dies deaktiviert die Vorschläge, die normalerweise beim Eingeben von Text angezeigt werden, um die Eingabe zu erleichtern.
+                autocorrect:
+                    false, // Diese Einstellung deaktiviert die automatische Korrektur der Eingabe im Textfeld.
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
                   hintText: 'Enter your E-Mail here',
+                ),
               ),
-            ),
-            TextField(
-              controller: _password,
-              obscureText: true, // sorgt dafür, dass der eingegeben Text nicht sichtbar ist.
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: const InputDecoration(
+              TextField(
+                controller: _password,
+                obscureText:
+                    true, // sorgt dafür, dass der eingegeben Text nicht sichtbar ist.
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: const InputDecoration(
                   hintText: 'Enter your Password here',
+                ),
               ),
-            ),
-            TextButton(
+              TextButton(
                 onPressed: () async {
                   final email = _email.text;
                   final password = _password.text;
                   context.read<AuthBloc>().add(
-                    AuthEventLogIn(
-                      email,
-                      password,
-                    ),
-                  );
+                        AuthEventLogIn(
+                          email,
+                          password,
+                        ),
+                      );
                 },
-                child: const Text ('Login'),
+                child: const Text('Login'),
               ),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add( // suchen nach 'AuthBloc' in 'context'.
-                  const AuthEventShouldRegister(), //'.add(c AESR)' -> Sende das "Event" 'AESR'.
-                );
-              },
-              child: Text('Not registered yet? Register here!'),
-            )
-          ],
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(
+                        const AuthEventForgotPassword(),
+                      );
+                },
+                child: Text('I forgot my password'),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(
+                        // suchen nach 'AuthBloc' in 'context'.
+                        const AuthEventShouldRegister(), //'.add(c AESR)' -> Sende das "Event" 'AESR'.
+                      );
+                },
+                child: Text('Not registered yet? Register here!'),
+              )
+            ],
+          ),
         ),
       ),
     );

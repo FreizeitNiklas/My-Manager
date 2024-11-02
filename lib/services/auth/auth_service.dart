@@ -33,8 +33,8 @@ class AuthService implements AuthProvider {
     required String password,
   }) =>
       provider.logIn(
-          email: email,
-          password: password,
+        email: email,
+        password: password,
       );
 
   @override
@@ -44,9 +44,13 @@ class AuthService implements AuthProvider {
   Future<void> sendEmailVerification() => provider.sendEmailVerification();
 
   @override
-  Future<void> initialize() async{
+  Future<void> initialize() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
+
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) =>
+      provider.sendPasswordReset(toEmail: toEmail);
 }

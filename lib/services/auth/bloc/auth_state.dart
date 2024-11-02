@@ -13,6 +13,8 @@ abstract class AuthState { // Beschreibt den allgemeinen Zustand der Authentifie
     required this.isLoading,
     this.loadingText = 'Please wat a moment',
   });
+
+ get exception => null; // Selbst geschrieben als Error-Bekämpfung
 }
 
 // 'AuthStateUninitialized' ist ein Zustand, der verwendet wird, wenn die Authentifizierung noch nicht initialisiert wurde.
@@ -31,6 +33,16 @@ class AuthStateRegistering extends AuthState {
     required this.exception, // Die Ausnahme, falls ein Fehler während der Registrierung auftritt.
     required isLoading, // Ob der Registrierungsvorgang gerade läuft.
   }) : super(isLoading: isLoading);
+}
+
+class AuthStateForgotPassword extends AuthState {
+  final Exception? exception; // Speichert mögliche Fehler, die beim Senden der E-Mail auftreten können.
+  final bool hasSentEmail; // Gibt an, ob die Passwort-Zurücksetzungs-E-Mail bereits gesendet wurde.
+  const AuthStateForgotPassword({
+    required this.exception,
+    required this.hasSentEmail,
+    required bool isLoading, // Gibt an, ob der Vorgang des E-Mail-Sendens noch läuft.
+  }) : super(isLoading: isLoading); // Der `isLoading`-Wert wird an die Basisklasse `AuthState` übergeben.
 }
 
 class AuthStateLoggedIn extends AuthState { // Speichert Informationen über den eingeloggten User (Name & logged in Status).
