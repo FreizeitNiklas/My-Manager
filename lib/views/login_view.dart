@@ -91,62 +91,64 @@ class _LoginViewState extends State<LoginView> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const Text(
-                'Please log in to your account in oder to interact with and create notes!'),
-              TextField(
-                controller: _email,
-                enableSuggestions:
-                    false, // Dies deaktiviert die Vorschläge, die normalerweise beim Eingeben von Text angezeigt werden, um die Eingabe zu erleichtern.
-                autocorrect:
-                    false, // Diese Einstellung deaktiviert die automatische Korrektur der Eingabe im Textfeld.
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  hintText: 'Enter your E-Mail here',
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const Text(
+                  'Please log in to your account in oder to interact with and create notes!'),
+                TextField(
+                  controller: _email,
+                  enableSuggestions:
+                      false, // Dies deaktiviert die Vorschläge, die normalerweise beim Eingeben von Text angezeigt werden, um die Eingabe zu erleichtern.
+                  autocorrect:
+                      false, // Diese Einstellung deaktiviert die automatische Korrektur der Eingabe im Textfeld.
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter your E-Mail here',
+                  ),
                 ),
-              ),
-              TextField(
-                controller: _password,
-                obscureText:
-                    true, // sorgt dafür, dass der eingegeben Text nicht sichtbar ist.
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration: const InputDecoration(
-                  hintText: 'Enter your Password here',
+                TextField(
+                  controller: _password,
+                  obscureText:
+                      true, // sorgt dafür, dass der eingegeben Text nicht sichtbar ist.
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter your Password here',
+                  ),
                 ),
-              ),
-              TextButton(
-                onPressed: () async {
-                  final email = _email.text;
-                  final password = _password.text;
-                  context.read<AuthBloc>().add(
-                        AuthEventLogIn(
-                          email,
-                          password,
-                        ),
-                      );
-                },
-                child: const Text('Login'),
-              ),
-              TextButton(
-                onPressed: () {
-                  context.read<AuthBloc>().add(
-                        const AuthEventForgotPassword(),
-                      );
-                },
-                child: Text('I forgot my password'),
-              ),
-              TextButton(
-                onPressed: () {
-                  context.read<AuthBloc>().add(
-                        // suchen nach 'AuthBloc' in 'context'.
-                        const AuthEventShouldRegister(), //'.add(c AESR)' -> Sende das "Event" 'AESR'.
-                      );
-                },
-                child: Text('Not registered yet? Register here!'),
-              )
-            ],
+                TextButton(
+                  onPressed: () async {
+                    final email = _email.text;
+                    final password = _password.text;
+                    context.read<AuthBloc>().add(
+                          AuthEventLogIn(
+                            email,
+                            password,
+                          ),
+                        );
+                  },
+                  child: const Text('Login'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    context.read<AuthBloc>().add(
+                          const AuthEventForgotPassword(),
+                        );
+                  },
+                  child: Text('I forgot my password'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    context.read<AuthBloc>().add(
+                          // suchen nach 'AuthBloc' in 'context'.
+                          const AuthEventShouldRegister(), //'.add(c AESR)' -> Sende das "Event" 'AESR'.
+                        );
+                  },
+                  child: Text('Not registered yet? Register here!'),
+                )
+              ],
+            ),
           ),
         ),
       ),

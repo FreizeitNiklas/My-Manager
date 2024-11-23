@@ -22,6 +22,12 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+//def keystoreProperties = new Properties()
+//def keystorePropertiesFile = rootProject.file('key.properties')
+//if (keystorePropertiesFile.exists()) { //Korrektur von Chat-GPT
+//    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+//}
+
 android {
     namespace "com.example.tutorial_flutter"
     compileSdkVersion 34
@@ -63,7 +69,23 @@ android {
         all*.exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
         all*.exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
     }
+
+//    signingConfigs {
+//        release {
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['keyPassword']
+//            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+//            storePassword keystoreProperties['storePassword']
+//        }
+//    }
+//    buildTypes {
+//        release {
+//            signingConfigs signingConfigs.release
+//        }
+//    }
 }
+
+
 
 flutter {
     source '../..'
